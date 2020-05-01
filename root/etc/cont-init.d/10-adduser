@@ -8,23 +8,18 @@ usermod -o -u "$PUID" abc
 
 echo '
 -------------------------------------
-          _         ()
-         | |  ___   _    __
-         | | / __| | |  /  \ 
-         | | \__ \ | | | () |
-         |_| |___/ |_|  \__/
+### Powered by Ubuntu Core ###
 
+## Info ##
 
-Brought to you by linuxserver.io
+OS: Ubuntu 
+Always based on: https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-amd64-root.tar.gz
+
+Rebuild every week.
+
+## Thies88 ##
 -------------------------------------'
-if [[ -f /donate.txt ]]; then
-    echo '
-To support the app dev(s) visit:'
-    cat /donate.txt
-fi
 echo '
-To support LSIO projects visit:
-https://www.linuxserver.io/donate/
 -------------------------------------
 GID/UID
 -------------------------------------'
