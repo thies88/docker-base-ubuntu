@@ -113,6 +113,7 @@ COPY root/ /
 # Fix some permissions for copied files
 RUN \
  chmod +x /etc/s6/init/init-stage2 && \
- chmod -R 500 /etc/cont-init.d/
+ chmod -R 500 /etc/cont-init.d/ && \
+ chmod -R 500 /docker-mods
 
 ENTRYPOINT ["/init"]
