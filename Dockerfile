@@ -27,7 +27,7 @@ COPY --from=rootfs-stage /root-out/ /
 ARG BUILD_DATE
 ARG VERSION
 LABEL build_version="version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="TheLamer"
+LABEL maintainer="Thies88"
 
 # set version for s6 overlay
 ARG OVERLAY_VERSION="v1.22.1.0"
