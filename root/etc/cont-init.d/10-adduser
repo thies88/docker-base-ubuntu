@@ -1,24 +1,28 @@
 #!/usr/bin/with-contenv bash
 
+#Set helper vars
+CODENAME="$(cat /etc/os-release | grep 'UBUNTU_CODENAME' | cut -d '=' -f 2)"
+VERSION="$(cat /etc/os-release | grep 'VERSION=' | cut -d '=' -f 2)"
+BUILDDATE=`date`
+
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 
 groupmod -o -g "$PGID" abc
 usermod -o -u "$PUID" abc
 
-echo '
+echo "
 -------------------------------------
 ### Powered by Ubuntu Core ###
 
-## Info ##
+OS: Ubuntu ${VERSION}
+Based on: https://partner-images.canonical.com/core/${CODENAME}/current/ubuntu-${CODENAME}-core-cloudimg-amd64-ro$
+Build @: ${BUILDDATE}
 
-OS: Ubuntu 
-Always based on: https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-amd64-root.tar.gz
+Rebuild/Updated every week.
 
-Rebuild every week.
-
-## Thies88 ##
--------------------------------------'
+# Thies88 #
+-------------------------------------"
 echo '
 -------------------------------------
 GID/UID
@@ -31,3 +35,10 @@ User gid:    $(id -g abc)
 chown abc:abc /app
 chown abc:abc /config
 chown abc:abc /defaults
+
+#drop helper variables used in this script
+unset CODENAME
+unset VERSION
+unset BUILDDATE
+unset PUID
+unset PGID
