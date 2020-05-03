@@ -40,10 +40,25 @@ LANGUAGE="en_US.UTF-8" \
 LANG="en_US.UTF-8" \
 TERM="xterm"
 
-# copy sources
-COPY sources.list /etc/apt/
+# copy sources (replaced with sed: See RUN)
+# COPY sources.list /etc/apt/
+
+# temp s6 overlay fix for ubuntu 20.04
+
+# tar xfz \
+#        /tmp/s6-overlay.tar.gz -C / --exclude="./bin" && \
+# tar xzf \
+#        /tmp/s6-overlay.tar.gz -C /usr ./bin && \
+
+# add local files
+COPY root/ /
 
 RUN \
+ echo "Enable Ubuntu Universe, Multiverse, and deb-src for main. Disable backports" && \
+ sed -i 's/^#\s*\(*main restricted\)$/\1/g' /etc/apt/sources.list && \
+ sed -i 's/^#\s*\(*universe\)$/\1/g' /etc/apt/sources.list && \
+ sed -i 's/^#\s*\(*multiverse\)$/\1/g' /etc/apt/sources.list && \
+ sed -i '/-backports/s/^/#/' /etc/apt/sources.list && \
  echo "**** Ripped from Ubuntu Docker Logic ****" && \
  set -xe && \
  echo '#!/bin/sh' \
@@ -107,13 +122,10 @@ RUN \
 	/var/lib/apt/lists/* \
 	/var/tmp/*
 
-# add local files
-COPY root/ /
-
 # Fix some permissions for copied files
-RUN \
- chmod +x /etc/s6/init/init-stage2 && \
- chmod -R 500 /etc/cont-init.d/ && \
- chmod -R 500 /docker-mods
+#RUN \
+# chmod +x /etc/s6/init/init-stage2 && \
+# chmod -R 500 /etc/cont-init.d/ && \
+# chmod -R 500 /docker-mods
 
 ENTRYPOINT ["/init"]
