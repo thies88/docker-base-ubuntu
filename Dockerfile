@@ -116,11 +116,16 @@ RUN \
 	/config \
 	/defaults && \
  echo "**** cleanup ****" && \
+ apt-get autoremove && \
  apt-get clean && \
  rm -rf \
 	/tmp/* \
 	/var/lib/apt/lists/* \
-	/var/tmp/*
+	/var/tmp/* \
+	/usr/share/locale/* \
+	/usr/share/man/* \
+	/usr/share/zoneinfo/* \
+	/var/cache/debconf/*
 
 # Fix some permissions for copied files
 #RUN \
