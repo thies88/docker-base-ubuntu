@@ -1,7 +1,7 @@
 FROM alpine:3.11 as rootfs-stage
 
 # environment
-ENV REL=bionic
+ENV REL=focal
 ENV ARCH=amd64
 # install packages
 RUN \
@@ -107,7 +107,9 @@ RUN \
  /tmp/s6-overlay.tar.gz -L \
 	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
  tar xfz \
-	/tmp/s6-overlay.tar.gz -C / && \
+        /tmp/s6-overlay.tar.gz -C / --exclude="./bin" && \
+ tar xzf \
+        /tmp/s6-overlay.tar.gz -C /usr ./bin && \
  echo "**** create abc user and make our folders ****" && \
  useradd -u 911 -U -d /config -s /bin/false abc && \
  usermod -G users abc && \
