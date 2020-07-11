@@ -94,11 +94,11 @@ RUN \
 	> /run/systemd/container && \
  echo "**** install apt-utils and locales ****" && \
  apt-get update && \
- apt-get install -y \
+ apt-get install -y --no-install-recommends \
 	apt-utils \
 	locales && \
  echo "**** install packages ****" && \
- apt-get install -y \
+ apt-get install -y --no-install-recommends \
 	curl \
 	tzdata && \
  echo "**** generate locale ****" && \
@@ -121,10 +121,13 @@ RUN \
  apt-get clean && \
  rm -rf \
 	/tmp/* \
+	/var/log \
+	/var/cache/apt \
 	/var/lib/apt/lists/* \
 	/var/tmp/* \
 	/usr/share/locale/* \
 	/usr/share/man/* \
+	/usr/share/info \
 	/usr/share/zoneinfo/* \
 	/var/cache/debconf/*
 
