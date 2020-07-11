@@ -95,12 +95,10 @@ RUN \
  echo "**** install apt-utils and locales ****" && \
  apt-get update && \
  apt-get install -y \
- 	--no-install-recommends \
 	apt-utils \
 	locales && \
  echo "**** install packages ****" && \
  apt-get install -y \
- 	--no-install-recommends \
 	curl \
 	tzdata && \
  echo "**** generate locale ****" && \
