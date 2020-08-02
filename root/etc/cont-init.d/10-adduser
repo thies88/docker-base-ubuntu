@@ -32,12 +32,12 @@ User uid:    $(id -u abc)
 User gid:    $(id -g abc)
 -------------------------------------
 "
-# Set permissions
+# Set permissions.
 chown abc:abc /app
 chown abc:abc /config
 chown abc:abc /defaults
 
-#drop helper variables used in this script
+#drop helper variables used in this script.
 unset CODENAME
 unset VERSION
 unset BUILDDATE
