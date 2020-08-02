@@ -121,7 +121,6 @@ RUN \
  apt-get clean && \
  rm -rf \
 	/tmp/* \
-	/var/log \
 	/var/cache/apt \
 	/var/lib/apt/lists/* \
 	/var/tmp/* \
