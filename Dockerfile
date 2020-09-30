@@ -100,7 +100,9 @@ RUN \
  echo "**** install packages ****" && \
  apt-get install -y \
 	curl \
-	tzdata && \
+	tzdata \
+	apt-transport-https \
+	gnupg2 && \
  echo "**** generate locale ****" && \
  locale-gen en_US.UTF-8 && \
  echo "**** add s6 overlay ****" && \
