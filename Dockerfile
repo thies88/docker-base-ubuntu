@@ -97,14 +97,14 @@ RUN \
  apt-get install -y \
 	apt-utils \
 	locales && \
+ echo "**** generate locale ****" && \
+ locale-gen en_US.UTF-8 && \
  echo "**** install packages ****" && \
  apt-get install -y \
 	curl \
 	tzdata \
 	apt-transport-https \
 	gnupg2 && \
- echo "**** generate locale ****" && \
- locale-gen en_US.UTF-8 && \
  echo "**** add s6 overlay ****" && \
  curl -o \
  /tmp/s6-overlay.tar.gz -L \
