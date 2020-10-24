@@ -128,6 +128,7 @@ RUN \
 	/var/tmp/* \
 	/usr/share/locale/* \
 	/usr/share/man/* \
+        /usr/share/doc/* \
 	/usr/share/info \
 	/usr/share/zoneinfo/* \
 	/var/cache/debconf/*
