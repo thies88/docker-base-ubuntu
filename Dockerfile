@@ -119,7 +119,7 @@ RUN \
 	/config \
 	/defaults && \
  echo "**** cleanup ****" && \
- apt-get --purge autoremove -y --allow-remove-essential e2fsprogs fdisk curl && \
+ apt-get --purge autoremove -y --allow-remove-essential e2fsprogs curl && \
  apt-get autoremove && \
  apt-get clean && \
  rm -rf \
