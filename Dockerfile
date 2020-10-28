@@ -119,7 +119,7 @@ RUN \
 	/config \
 	/defaults && \
  echo "**** cleanup ****" && \
- apt-get --purge autoremove -y --allow-remove-essential e2fsprogs && \
+ #apt-get --purge autoremove -y --allow-remove-essential e2fsprogs && \
  apt-get autoremove && \
  apt-get clean && \
  rm -rf \
@@ -127,6 +127,7 @@ RUN \
 	/var/cache/apt \
 	/var/lib/apt/lists/* \
 	/var/tmp/* \
+	/var/log/* \
 	/usr/share/locale/* \
 	/usr/share/man/* \
         /usr/share/doc/* \
