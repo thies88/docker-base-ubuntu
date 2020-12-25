@@ -35,6 +35,7 @@ ARG OVERLAY_VERSION="v2.1.0.2"
 ARG OVERLAY_ARCH="amd64"
 
 # set environment variables
+ENV REL=${REL}
 ARG DEBIAN_FRONTEND="noninteractive"
 ENV HOME="/root" \
 LANGUAGE="en_US.UTF-8" \
