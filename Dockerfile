@@ -34,11 +34,15 @@ LABEL maintainer="thies88"
 ARG OVERLAY_VERSION="v2.1.0.2"
 ARG OVERLAY_ARCH="amd64"
 
+# add s6 overlay
+ADD https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}-installer /tmp/
+RUN chmod +x /tmp/s6-overlay-${OVERLAY_ARCH}-installer && /tmp/s6-overlay-${OVERLAY_ARCH}-installer / && rm /tmp/s6-overlay-${OVERLAY_ARCH}-installer
+
 # set our ubuntu base image environment variables
 ENV REL=bionic
 ARG TZ=Europe/Amsterdam
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV HOME="/config" \
+ENV HOME="/root" \
 LANGUAGE="en_US.UTF-8" \
 LANG="en_US.UTF-8" \
 TERM="xterm"
@@ -107,12 +111,12 @@ RUN \
  ls | grep -v $SUBSTR2 | xargs rm -rf && \
  dpkg-reconfigure -f noninteractive tzdata && \
  cd / && \
- echo "**** add s6 overlay ****" && \
- curl -o \
- /tmp/s6-overlay.tar.gz -L \
-	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
- tar xfz \
-	/tmp/s6-overlay.tar.gz -C / && \
+ #echo "**** add s6 overlay ****" && \
+ #curl -o \
+ #/tmp/s6-overlay.tar.gz -L \
+#	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
+# tar xfz \
+#	/tmp/s6-overlay.tar.gz -C / && \
  echo "**** create abc user and make our folders ****" && \
  useradd -u 911 -U -d /config -s /sbin/nologin abc && \
  usermod -G users abc && \
@@ -140,10 +144,10 @@ mkdir -p /package-list && \
 COPY root/ /
 
 # Fix some permissions for copied files
-#RUN \
-# chmod +x /etc/s6/init/init-stage2 && \
-# chmod -R 500 /etc/cont-init.d/ && \
-# chmod -R 500 /docker-mods
+RUN \
+ chmod +x /etc/s6/init/init-stage2 && \
+ chmod -R 550 /etc/cont-init.d/ && \
+ chmod -R 550 /docker-mods
 
 #ENTRYPOINT ["/bin/bash", "/init"]
 ENTRYPOINT ["/init"]
