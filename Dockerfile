@@ -1,17 +1,18 @@
-FROM alpine:3.11 as rootfs-stage
+#Use alpine as base-build image to pull the ubuntu cloud image from: https://partner-images.canonical.com and create rootfs.
+FROM alpine:3.12 as rootfs-stage
 
-# environment
+# Set Ubuntu distribution and architecture. MAke sure to change Rule number 39 to.
 ENV REL=bionic
 ENV ARCH=amd64
-# install packages
+
+# install packages nessesery for downloaden Ubuntu cloud image
 RUN \
  apk add --no-cache \
         bash \
         curl \
         tzdata \
         xz
-
-# grab base tarball
+# Grab base tarball (Ubuntu cloud image compressed) and extract
 RUN \
  mkdir /root-out && \
  curl -o \
@@ -21,46 +22,36 @@ RUN \
         /rootfs.tar.gz -C \
         /root-out
 
-# Runtime stage
+# Runtime stage (Create actual Ubuntu base image)
 FROM scratch
 COPY --from=rootfs-stage /root-out/ /
 ARG BUILD_DATE
 ARG VERSION
 LABEL build_version="version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="Thies88"
+LABEL maintainer="thies88"
 
-# set version for s6 overlay
-#ARG OVERLAY_VERSION="v1.22.0.0"
+# set version for s6 overlay: check "https://github.com/just-containers/s6-overlay/releases" for most recent version
 ARG OVERLAY_VERSION="v2.1.0.2"
 ARG OVERLAY_ARCH="amd64"
 
-# set environment variables
-ENV REL=${REL}
+# set our ubuntu base image environment variables
+ENV REL=bionic
+ARG TZ=Europe/Amsterdam
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV HOME="/root" \
+ENV HOME="/config" \
 LANGUAGE="en_US.UTF-8" \
 LANG="en_US.UTF-8" \
 TERM="xterm"
 
-# copy sources (replaced with sed: See RUN)
-# COPY sources.list /etc/apt/
-
-# temp s6 overlay fix for ubuntu 20.04
-
-# tar xfz \
-#        /tmp/s6-overlay.tar.gz -C / --exclude="./bin" && \
-# tar xzf \
-#        /tmp/s6-overlay.tar.gz -C /usr ./bin && \
-
-# add local files
-COPY root/ /
+## Enable Ubuntu Universe, Multiverse, and deb-src repositories for main.
+RUN \
+sed -i 's/^#\s*\(*main restricted\)$/\1/g' /etc/apt/sources.list && \
+#sed -i 's/^#\s*\(*universe\)$/\1/g' /etc/apt/sources.list && \
+#sed -i 's/^#\s*\(*multiverse\)$/\1/g' /etc/apt/sources.list && \
+#disable backports repo
+sed -i '/-backports/s/^/#/' /etc/apt/sources.list
 
 RUN \
- echo "Enable Ubuntu Universe, Multiverse, and deb-src for main. Disable backports" && \
- sed -i 's/^#\s*\(*main restricted\)$/\1/g' /etc/apt/sources.list && \
- sed -i 's/^#\s*\(*universe\)$/\1/g' /etc/apt/sources.list && \
- sed -i 's/^#\s*\(*multiverse\)$/\1/g' /etc/apt/sources.list && \
- sed -i '/-backports/s/^/#/' /etc/apt/sources.list && \
  echo "**** Ripped from Ubuntu Docker Logic ****" && \
  set -xe && \
  echo '#!/bin/sh' \
@@ -95,51 +86,63 @@ RUN \
 	> /run/systemd/container && \
  echo "**** install apt-utils and locales ****" && \
  apt-get update && \
- apt-get install -y \
-	apt-utils \
+ apt-get -y -u upgrade && \
+ apt-get install -y --no-install-recommends \
+	gnupg \
 	locales && \
- echo "**** generate locale ****" && \
- locale-gen en_US.UTF-8 && \
  echo "**** install packages ****" && \
  apt-get install -y \
 	curl \
-	tzdata \
-	apt-transport-https \
-	gnupg2 && \
+	tzdata && \
+ echo "**** generate locale ****" && \
+ locale-gen en_US.UTF-8 && \
+ echo "****Fixing timezone based on timezone set in docker argument****" && \
+ rm -rf /etc/localtime && \
+ ln -s /usr/share/zoneinfo/${TZ} /etc/localtime && \
+ SUBSTR=$(echo ${TZ}| cut -d'/' -f 1) && \
+ SUBSTR2=$(echo ${TZ}| cut -d'/' -f 2) && \
+ cd /usr/share/zoneinfo && \
+ ls | grep -v $SUBSTR | xargs rm -rf && \
+ cd /usr/share/zoneinfo/$SUBSTR && \
+ ls | grep -v $SUBSTR2 | xargs rm -rf && \
+ dpkg-reconfigure -f noninteractive tzdata && \
+ cd / && \
  echo "**** add s6 overlay ****" && \
  curl -o \
  /tmp/s6-overlay.tar.gz -L \
 	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
  tar xfz \
-        /tmp/s6-overlay.tar.gz -C / && \
+	/tmp/s6-overlay.tar.gz -C / && \
  echo "**** create abc user and make our folders ****" && \
- useradd -u 911 -U -d /config -s /bin/false abc && \
+ useradd -u 911 -U -d /config -s /sbin/nologin abc && \
  usermod -G users abc && \
  mkdir -p \
 	/app \
 	/config \
 	/defaults && \
  echo "**** cleanup ****" && \
- #apt-get --purge autoremove -y --allow-remove-essential e2fsprogs && \
- apt-get autoremove && \
  apt-get clean && \
  rm -rf \
 	/tmp/* \
-	/var/cache/apt \
 	/var/lib/apt/lists/* \
+	/var/cache/apt/* \
 	/var/tmp/* \
 	/var/log/* \
-	/usr/share/locale/* \
+	/usr/share/doc/* \
+	/usr/share/info/* \
 	/usr/share/man/* \
-        /usr/share/doc/* \
-	/usr/share/info \
-	/usr/share/zoneinfo/* \
-	/var/cache/debconf/*
+	/usr/share/locale/* && \
+echo "Get packages list and write to file" && \
+mkdir -p /package-list && \
+	apt list --installed > /package-list/package-list.txt
+		
+# add local files
+COPY root/ /
 
 # Fix some permissions for copied files
-#RUN \
-# chmod +x /etc/s6/init/init-stage2 && \
-# chmod -R 500 /etc/cont-init.d/ && \
-# chmod -R 500 /docker-mods
+RUN \
+ chmod +x /etc/s6/init/init-stage2 && \
+ chmod -R 500 /etc/cont-init.d/ && \
+ chmod -R 500 /docker-mods
 
-ENTRYPOINT ["/init"]
+ENTRYPOINT ["/bin/bash", "/init"]
