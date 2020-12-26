@@ -55,7 +55,10 @@ sed -i 's/^#\s*\(*main restricted\)$/\1/g' /etc/apt/sources.list && \
 #disable backports repo
 sed -i '/-backports/s/^/#/' /etc/apt/sources.list
 
+## apply docker mods and configure this image: install some basic apps set TZ, create folders, add user and group.
+## First entry: export PATH to fix s6-overlay unable to init
 RUN \
+ export PATH="/bin/bash:$PATH" && \
  echo "**** Ripped from Ubuntu Docker Logic ****" && \
  set -xe && \
  echo '#!/bin/sh' \
