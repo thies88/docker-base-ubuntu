@@ -13,15 +13,19 @@ usermod -o -u "$PUID" abc
 
 echo "
 -------------------------------------
-### Powered by Ubuntu Core ###
+#############            Powered by:            #############
+   __  ____                __           ______              
+  / / / / /_  __  ______  / /___  __   / ____/___  ________ 
+ / / / / __ \/ / / / __ \/ __/ / / /  / /   / __ \/ ___/ _ \
+/ /_/ / /_/ / /_/ / / / / /_/ /_/ /  / /___/ /_/ / /  /  __/
+\____/_____/\____/_/ /_/\__/\____/   \____/\____/_/   \___/
 
-OS: Ubuntu ${VERSION}
-Based on: https://partner-images.canonical.com/core/${CODENAME}/current/ubuntu-${CODENAME}-core-cloudimg-amd64-ro$
-Build @: ${BUILDDATE}
-
-Rebuild/Updated every week.
-
-# Thies88 #
+OS: Ubuntu Core ${VERSION}
+Image source: https://partner-images.canonical.com/core/${CODENAME}/current/ubuntu-${CODENAME}-core-cloudimg-amd64-root.tar.gz
+Build source: DockerHub.com
+Build date: ${BUILDDATE}
+Mods: s6 overlay + dockermods
+Maintainer: Thies (Jhallo)
 -------------------------------------"
 echo '
 -------------------------------------
