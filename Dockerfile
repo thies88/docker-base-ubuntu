@@ -123,7 +123,7 @@ RUN \
  curl -o \
  /tmp/s6-overlay.tar.gz -L \
 	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
- tar ixfz \
+ tar xfz \
 	/tmp/s6-overlay.tar.gz -C / && \
  echo "**** create abc user and make our folders ****" && \
  useradd -u 911 -U -d /config -s /sbin/nologin abc && \
@@ -152,10 +152,11 @@ mkdir -p /package-list && \
 COPY root/ /
 
 # Fix some permissions for copied files
-# RUN \
-# chmod +x /etc/s6/init/init-stage2 && \
-# chmod -R 550 /etc/cont-init.d/ && \
-# chmod -R 550 /docker-mods
+RUN \
+ chmod +x /etc/s6/init/init-stage2 && \
+ chmod -R 500 /etc/cont-init.d/ && \
+ chmod -R 500 /docker-mods
 
-ENTRYPOINT ["/bin/bash", "/init"]
-#ENTRYPOINT ["/init"]
+#ENTRYPOINT ["/bin/bash", "/init"]
+# fix voor path import
+ENTRYPOINT ["/init"]
