@@ -144,10 +144,10 @@ mkdir -p /package-list && \
 COPY root/ /
 
 # Fix some permissions for copied files
-RUN \
- chmod +x /etc/s6/init/init-stage2 && \
- chmod -R 550 /etc/cont-init.d/ && \
- chmod -R 550 /docker-mods
+#RUN \
+# chmod +x /etc/s6/init/init-stage2 && \
+# chmod -R 550 /etc/cont-init.d/ && \
+# chmod -R 550 /docker-mods
 
 #ENTRYPOINT ["/bin/bash", "/init"]
 ENTRYPOINT ["/init"]
