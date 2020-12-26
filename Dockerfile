@@ -125,7 +125,7 @@ RUN \
 	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
  tar ixfz \
 	/tmp/s6-overlay.tar.gz -C / && \
- echo "**** add /bin/bash to PATH ****"
+ echo "**** add /bin/bash to PATH ****" && \
  export PATH="/bin/bash:$PATH" && \
  echo "**** create abc user and make our folders ****" && \
  useradd -u 911 -U -d /config -s /sbin/nologin abc && \
