@@ -1,9 +1,15 @@
+# Set global vars
+ARG REL=focal
+ARG ARCH=amd64
+
 #Use alpine as base-build image to pull the ubuntu cloud image from: https://partner-images.canonical.com and create rootfs.
 FROM alpine:3.12 as rootfs-stage
 
-# Set Ubuntu distribution and architecture. MAke sure to change Rule number 39 to.
-ENV REL=bionic
-ENV ARCH=amd64
+# Set local vars for rootfs-stage
+ARG REL
+ENV REL=${REL}
+ARG ARCH
+ENV ARCH=${ARCH}
 
 # install packages nessesery for downloaden Ubuntu cloud image
 RUN \
@@ -34,18 +40,15 @@ LABEL maintainer="thies88"
 ARG OVERLAY_VERSION="v2.1.0.2"
 ARG OVERLAY_ARCH="amd64"
 
-# ubuntu focal fix for s6-overlay. --exclude="./bin" and extract separtly to /usr
-# tar ixfz \
-#        /tmp/s6-overlay.tar.gz -C / --exclude="./bin" && \
-# tar ixzf \
-#        /tmp/s6-overlay.tar.gz -C /usr ./bin && \
-
 # add s6 overlay (not using yet, error out on build cause: missing certain folders, installer cant handle this ?)
 # ADD https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}-installer /tmp/
 # RUN chmod +x /tmp/s6-overlay-${OVERLAY_ARCH}-installer && /tmp/s6-overlay-${OVERLAY_ARCH}-installer / && rm /tmp/s6-overlay-${OVERLAY_ARCH}-installer
 
 # set our ubuntu base image environment variables
-ENV REL=bionic
+ARG REL
+ENV REL=${REL}
+ARG ARCH
+ENV ARCH=${ARCH}
 ARG TZ=Europe/Amsterdam
 ARG DEBIAN_FRONTEND="noninteractive"
 ENV HOME="/root" \
@@ -107,7 +110,7 @@ RUN \
 	curl \
 	tzdata && \
  echo "**** generate locale ****" && \
- locale-gen en_US.UTF-8 && \
+ locale-gen ${LANG} && \
  echo "****Fixing timezone based on timezone set in docker argument****" && \
  rm -rf /etc/localtime && \
  ln -s /usr/share/zoneinfo/${TZ} /etc/localtime && \
@@ -120,11 +123,21 @@ RUN \
  dpkg-reconfigure -f noninteractive tzdata && \
  cd / && \
  echo "**** add s6 overlay ****" && \
+ if [ "${REL}" = "focal" ] ; then \
  curl -o \
  /tmp/s6-overlay.tar.gz -L \
 	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
- tar xfz \
-	/tmp/s6-overlay.tar.gz -C / && \
+ tar ixfz \
+        /tmp/s6-overlay.tar.gz -C / --exclude="./bin" && \
+ tar ixzf \
+        /tmp/s6-overlay.tar.gz -C /usr ./bin ; \
+ else \
+ curl -o \
+ /tmp/s6-overlay.tar.gz -L \
+	"https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-${OVERLAY_ARCH}.tar.gz" && \
+ tar ixfz \
+        /tmp/s6-overlay.tar.gz -C / ; \
+ fi && \
  echo "**** create abc user and make our folders ****" && \
  useradd -u 911 -U -d /config -s /sbin/nologin abc && \
  usermod -G users abc && \
@@ -134,6 +147,10 @@ RUN \
 	/defaults && \
  echo "**** cleanup ****" && \
  apt-get clean && \
+ echo "**** cleanup locales ****" && \
+ cp /usr/share/i18n/locales/en_US /tmp && \
+ rm -rf /usr/share/i18n/locales/??_?? && rm -rf /usr/share/i18n/locales/???_?? && \
+ cp /tmp/en_US /usr/share/i18n/locales/ && \
  rm -rf \
 	/tmp/* \
 	/var/lib/apt/lists/* \
@@ -142,8 +159,7 @@ RUN \
 	/var/log/* \
 	/usr/share/doc/* \
 	/usr/share/info/* \
-	/usr/share/man/* \
-	/usr/share/locale/* && \
+	/usr/share/man/* && \
 echo "Get packages list and write to file" && \
 mkdir -p /package-list && \
 	apt list --installed > /package-list/package-list.txt
