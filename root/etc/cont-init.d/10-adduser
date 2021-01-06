@@ -29,10 +29,8 @@ Build date: ${BUILDDATE}
 Mods: s6 overlay + dockermods
 Maintainer: Thies (Jhallo)
 -------------------------------------"
-echo '
--------------------------------------
-GID/UID
--------------------------------------'
+echo "GID/UID:"
+
 echo "
 User uid:    $(id -u abc)
 User gid:    $(id -g abc)
