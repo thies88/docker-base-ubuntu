@@ -1,5 +1,5 @@
 # Set global vars
-ARG REL=focal
+ARG REL=bionic
 ARG ARCH=amd64
 
 #Use alpine as base-build image to pull the ubuntu cloud image from: https://partner-images.canonical.com and create rootfs.
@@ -173,6 +173,4 @@ RUN \
  chmod -R 500 /etc/cont-init.d/ && \
  chmod -R 500 /docker-mods
 
-#ENTRYPOINT ["/bin/bash", "/init"]
-# fix voor path import
 ENTRYPOINT ["/init"]
